@@ -14,9 +14,9 @@ enum
 /// @brief actuator type
 enum
 {
-    NONE = 0,
-    KICK,
-    DRIBLE,
+    ACTION_NONE = 0,
+    ACTION_KICK,
+    ACTION_DRIBLE,
 };
 typedef struct
 {
@@ -41,6 +41,8 @@ typedef struct
 {
     State2D robot_goal_pose; // 機体をどこに移動させるか
     State2D ball_goal_pose;  // ボールをどこに運ぶか
+    State2D target_velocity; // 速度制御指示
+    bool is_pose_control;    // 位置制御を行う
     int ball_action;
 } StrategyPcCommand;
 

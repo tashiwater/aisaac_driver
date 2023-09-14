@@ -21,23 +21,24 @@ void goBallGetPose(float target_theta, const World *world, RobotController *robo
     goTargetPose(&target_robot_pose, &(world->robot_pose), robot_controller, output_velocity);
 }
 
-void calcDribbleOutput(const World *world, const StrategyPcCommand *strategy_pc_command, const World *world, RobotController *robot_controller, RobotOutput *output)
+void calcDribbleOutput(const World *world, const StrategyPcCommand *strategy_pc_command,
+                       RobotController *robot_controller, RobotOutput *output)
 {
     output->actuator_type = DRIBLE;
     output->actuator_value = DRIBBLE_POWER;
     if (world->is_ball_detecting)
     {
+        //// ボールを持っているときは、ドリブルで進む
         robot_controller->max_robot_velocity = DRIBBLE_VELOCITY;
     }
     else
     {
         //// まずボールを取りに行く
         //// どの角度でボールを取るか
+        //// [TODO] フィールドの隅にいるときは後ろ向きで取る
         State2D ball_goal_vector = {0};
         diffState2D(&(strategy_pc_command->ball_goal_pose), &(world->ball_pose), &ball_goal_vector);
         float target_theta = atan2(ball_goal_vector.y, ball_goal_vector.x);
-
-        ////
         goBallGetPose(target_theta, world, robot_controller, &(output->velocity));
     }
 }

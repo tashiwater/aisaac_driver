@@ -1,6 +1,14 @@
 #ifndef _TOOLS_H_
 #define _TOOLS_H_
 
+/// @brief 符号を返す
+/// @param val 値
+/// @return 1 or -1
+int getSign(float val)
+{
+    return (val > 0) - (val < 0);
+}
+
 // 最大値を算出
 float max_value(float data[], uint16_t size);
 // 最小値を算出
