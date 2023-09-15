@@ -1,9 +1,10 @@
 #pragma once
 #include "System/struct.h"
-#include "System/temp.h"
-#include "System/accel_limited_control.h"
 #include "System/define.h"
-
+#include "System/temp.h"
+#include "System/move.h"
+#include "System/dribble.h"
+#include "System/kick.h"
 /// @brief halt中は出力0
 /// @param output
 void halt(RobotOutput *output)
@@ -19,47 +20,27 @@ void stopGame(const StrategyPcCommand *strategy_pc_command, const World *world, 
 {
     robot_controller->max_robot_vel = MAX_ROBOT_SPEED_GAME_STOP;
     // 目標値に向けて走行
+    move(strategy_pc_command, world, robot_controller, output);
     goTargetPose(&(strategy_pc_command->robot_goal_pose), &(world->robot_pose), robot_controller, &(output->velocity));
-    //// actuatorは動かさない
-    output->actuator_type = ACTION_NONE;
-    output->actuator_value = 0;
 }
 
 void inGame(const StrategyPcCommand *strategy_pc_command, const World *world, RobotController *robot_controller, RobotOutput *output)
 {
+    robot_controller->max_robot_vel = MAX_ROBOT_SPEED;
     switch (strategy_pc_command->ball_action)
     {
-    case ACTION_NONE: // ただ目標値に移動
-        robot_controller->max_robot_vel = MAX_ROBOT_SPEED_GAME_STOP;
-        goTargetPose(&(strategy_pc_command->robot_goal_pose), &(world->robot_pose), robot_controller, &(output->velocity));
-
+    case ACTION_MOVE: // ただ目標値に移動
+        move(strategy_pc_command, world, robot_controller, output);
         break;
-
+    case ACTION_DRIBLE:
+        dribble(strategy_pc_command, world, robot_controller, output);
+        break;
+    case ACTION_KICK:
+        kick(strategy_pc_command, world, robot_controller, output);
+        break;
     default:
+        move(strategy_pc_command, world, robot_controller, output);
         break;
-    }
-
-    ////ドリブルする
-    output->actuator_type = ACTION_DRIBLE;
-    output->actuator_value = DRIBBLE_POWER;
-    if (world->is_ball_detecting)
-    {
-        //// ボールを持っているときは、ドリブルで進む
-        robot_controller->max_robot_velocity = DRIBBLE_VELOCITY;
-    }
-    else
-    {
-        ////ドリブルする
-        output->actuator_type = DRIBLE;
-        output->actuator_value = DRIBBLE_POWER;
-        ////  ボールを持っていないときは、ボールを取りに行く
-        //// どの角度でボールを取るか計算
-        //// [TODO] フィールドの隅にいるときは後ろ向きで取る
-        State2D ball_goal_vector = {0};
-        diffState2D(&(strategy_pc_command->ball_goal_pose), &(world->ball_pose), &ball_goal_vector);
-        float target_theta = atan2(ball_goal_vector.y, ball_goal_vector.x);
-        goBallGetPose(target_theta, world, robot_controller, &(output->velocity));
-        return
     }
 }
 

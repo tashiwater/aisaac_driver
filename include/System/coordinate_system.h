@@ -14,11 +14,11 @@ void updateWorld(Raspberry2MainboardMsg *msg, World *inout_world)
         // 値の更新がなければearly return
         return
     }
-    if (msg->vision_data.robot_pose.reliability > 0.5)
+    if (msg->vision_data.robot.pose.reliability > 0.5)
     {
         inout_world->robot_pose = msg->vision_data.robot.pose;
     }
-    if (msg->vision_data.ball_pose.reliability > 0.5)
+    if (msg->vision_data.ball.pose.reliability > 0.5)
     {
         inout_world->ball_pose = msg->vision_data.ball.pose;
     }
